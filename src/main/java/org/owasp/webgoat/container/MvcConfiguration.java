@@ -254,14 +254,17 @@ public class MvcConfiguration implements WebMvcConfigurer {
 
 /**
  * Interceptor to add Cache-Control headers to all responses
- * to prevent sensitive pages from being cached by the browser
+ * to prevent sensitive pages from being cached by the browser.
+ * 
+ * This is specifically added to fix the vulnerability where sensitive pages could be cached by browsers,
+ * particularly for XXE lessons which may contain sensitive information.
  */
 @Component
 class CacheControlHeadersInterceptor implements HandlerInterceptor {
     
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        // Set cache control headers for all requests
+        // Set cache control headers for all requests to prevent browser caching
         response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Expires", "0");
