@@ -261,10 +261,12 @@ class CacheControlHeadersInterceptor implements HandlerInterceptor {
     
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        // Set cache control headers for all requests
-        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+        // Set strict cache control headers for all requests to prevent any caching of sensitive pages
+        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, private");
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Expires", "0");
+        // Add X-Content-Type-Options header to prevent MIME type sniffing
+        response.setHeader("X-Content-Type-Options", "nosniff");
         return true;
     }
 }
