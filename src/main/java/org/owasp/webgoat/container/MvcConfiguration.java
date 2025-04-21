@@ -37,6 +37,10 @@ import org.thymeleaf.templateresolver.FileTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 import org.thymeleaf.templateresource.ITemplateResource;
 import org.thymeleaf.templateresource.StringTemplateResource;
+import org.springframework.web.servlet.HandlerInterceptor;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
 
 /** Configuration for Spring MVC */
 @Configuration
@@ -220,11 +224,17 @@ public class MvcConfiguration implements WebMvcConfigurer {
     lci.setParamName("lang");
     return lci;
   }
+  
+  @Bean
+  public CacheControlHeadersInterceptor cacheControlHeadersInterceptor() {
+    return new CacheControlHeadersInterceptor();
+  }
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(localeChangeInterceptor());
     registry.addInterceptor(new UserInterceptor());
+    registry.addInterceptor(cacheControlHeadersInterceptor());
   }
 
   @Bean
@@ -240,4 +250,21 @@ public class MvcConfiguration implements WebMvcConfigurer {
   public LabelDebugger labelDebugger() {
     return new LabelDebugger();
   }
+}
+
+/**
+ * Interceptor to add Cache-Control headers to all responses
+ * to prevent sensitive pages from being cached by the browser
+ */
+@Component
+class CacheControlHeadersInterceptor implements HandlerInterceptor {
+    
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        // Set cache control headers for all requests
+        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Expires", "0");
+        return true;
+    }
 }
