@@ -59,6 +59,14 @@ public class WebSecurityConfig {
               oidc.defaultSuccessUrl("/home");
             })
         .logout(logout -> logout.deleteCookies("WEBWOLFSESSION").invalidateHttpSession(true))
+        .headers(headers -> 
+            headers.cacheControl()
+                   .contentTypeOptions()
+                   .and()
+                   .xssProtection()
+                   .and()
+                   .httpStrictTransportSecurity()
+        )
         .exceptionHandling(
             handling ->
                 handling.authenticationEntryPoint(new AjaxAuthenticationEntryPoint("/login")))

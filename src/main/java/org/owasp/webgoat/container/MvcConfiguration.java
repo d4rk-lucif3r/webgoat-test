@@ -150,36 +150,47 @@ public class MvcConfiguration implements WebMvcConfigurer {
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
     // WebGoat internal
-    registry.addResourceHandler("/css/**").addResourceLocations("classpath:/webgoat/static/css/");
-    registry.addResourceHandler("/js/**").addResourceLocations("classpath:/webgoat/static/js/");
+    registry.addResourceHandler("/css/**")
+        .addResourceLocations("classpath:/webgoat/static/css/")
+        .setCachePeriod(0);
+    registry.addResourceHandler("/js/**")
+        .addResourceLocations("classpath:/webgoat/static/js/")
+        .setCachePeriod(0);
     registry
         .addResourceHandler("/plugins/**")
-        .addResourceLocations("classpath:/webgoat/static/plugins/");
+        .addResourceLocations("classpath:/webgoat/static/plugins/")
+        .setCachePeriod(0);
     registry
         .addResourceHandler("/fonts/**")
-        .addResourceLocations("classpath:/webgoat/static/fonts/");
+        .addResourceLocations("classpath:/webgoat/static/fonts/")
+        .setCachePeriod(0);
 
     // WebGoat lessons
     registry
         .addResourceHandler("/images/**")
         .addResourceLocations(
-            lessonScanner.applyPattern("classpath:/lessons/%s/images/").toArray(String[]::new));
+            lessonScanner.applyPattern("classpath:/lessons/%s/images/").toArray(String[]::new))
+        .setCachePeriod(0);
     registry
         .addResourceHandler("/lesson_js/**")
         .addResourceLocations(
-            lessonScanner.applyPattern("classpath:/lessons/%s/js/").toArray(String[]::new));
+            lessonScanner.applyPattern("classpath:/lessons/%s/js/").toArray(String[]::new))
+        .setCachePeriod(0);
     registry
         .addResourceHandler("/lesson_css/**")
         .addResourceLocations(
-            lessonScanner.applyPattern("classpath:/lessons/%s/css/").toArray(String[]::new));
+            lessonScanner.applyPattern("classpath:/lessons/%s/css/").toArray(String[]::new))
+        .setCachePeriod(0);
     registry
         .addResourceHandler("/lesson_templates/**")
         .addResourceLocations(
-            lessonScanner.applyPattern("classpath:/lessons/%s/templates/").toArray(String[]::new));
+            lessonScanner.applyPattern("classpath:/lessons/%s/templates/").toArray(String[]::new))
+        .setCachePeriod(0);
     registry
         .addResourceHandler("/video/**")
         .addResourceLocations(
-            lessonScanner.applyPattern("classpath:/lessons/%s/video/").toArray(String[]::new));
+            lessonScanner.applyPattern("classpath:/lessons/%s/video/").toArray(String[]::new))
+        .setCachePeriod(0);
   }
 
   @Bean

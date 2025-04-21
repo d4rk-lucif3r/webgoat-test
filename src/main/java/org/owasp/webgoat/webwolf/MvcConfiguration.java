@@ -26,13 +26,20 @@ public class MvcConfiguration implements WebMvcConfigurer {
 
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
-    registry.addResourceHandler("/files/**").addResourceLocations("file:///" + fileLocation + "/");
+    registry.addResourceHandler("/files/**")
+        .addResourceLocations("file:///" + fileLocation + "/")
+        .setCachePeriod(0);
 
-    registry.addResourceHandler("/css/**").addResourceLocations("classpath:/webwolf/static/css/");
-    registry.addResourceHandler("/js/**").addResourceLocations("classpath:/webwolf/static/js/");
+    registry.addResourceHandler("/css/**")
+        .addResourceLocations("classpath:/webwolf/static/css/")
+        .setCachePeriod(0);
+    registry.addResourceHandler("/js/**")
+        .addResourceLocations("classpath:/webwolf/static/js/")
+        .setCachePeriod(0);
     registry
         .addResourceHandler("/images/**")
-        .addResourceLocations("classpath:/webwolf/static/images/");
+        .addResourceLocations("classpath:/webwolf/static/images/")
+        .setCachePeriod(0);
   }
 
   @Override
