@@ -8,6 +8,8 @@ import static org.apache.commons.text.StringEscapeUtils.escapeJson;
 
 import lombok.Getter;
 import org.owasp.webgoat.container.i18n.PluginMessages;
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 public class AttackResult {
@@ -19,6 +21,7 @@ public class AttackResult {
   private Object[] outputArgs;
   private final String assignment;
   private final boolean attemptWasMade;
+  private final Map<String, String> headers;
 
   private AttackResult(
       boolean lessonCompleted,
@@ -31,6 +34,7 @@ public class AttackResult {
     this.output = escapeJson(output);
     this.assignment = assignment;
     this.attemptWasMade = attemptWasMade;
+    this.headers = new HashMap<>();
   }
 
   public AttackResult(
@@ -48,6 +52,26 @@ public class AttackResult {
     this.outputArgs = outputArgs;
     this.assignment = assignment;
     this.attemptWasMade = attemptWasMade;
+    this.headers = new HashMap<>();
+  }
+  
+  public AttackResult(
+      boolean lessonCompleted,
+      String feedback,
+      Object[] feedbackArgs,
+      String output,
+      Object[] outputArgs,
+      String assignment,
+      boolean attemptWasMade,
+      Map<String, String> headers) {
+    this.lessonCompleted = lessonCompleted;
+    this.feedback = feedback;
+    this.feedbackArgs = feedbackArgs;
+    this.output = output;
+    this.outputArgs = outputArgs;
+    this.assignment = assignment;
+    this.attemptWasMade = attemptWasMade;
+    this.headers = headers;
   }
 
   public boolean assignmentSolved() {
@@ -55,11 +79,18 @@ public class AttackResult {
   }
 
   public AttackResult apply(PluginMessages pluginMessages) {
-    return new AttackResult(
+    AttackResult attackResult = new AttackResult(
         lessonCompleted,
         pluginMessages.getMessage(feedback, feedback, feedbackArgs),
         pluginMessages.getMessage(output, output, outputArgs),
         assignment,
         attemptWasMade);
+    
+    // Add all headers from this AttackResult to the new one
+    for (Map.Entry<String, String> header : this.headers.entrySet()) {
+        attackResult.headers.put(header.getKey(), header.getValue());
+    }
+    
+    return attackResult;
   }
 }

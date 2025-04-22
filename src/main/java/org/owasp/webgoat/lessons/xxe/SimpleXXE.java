@@ -54,12 +54,21 @@ public class SimpleXXE implements AssignmentEndpoint {
       var comment = comments.parseXml(commentStr, false);
       comments.addComment(comment, user, false);
       if (checkSolution(comment)) {
-        return success(this).build();
+        return success(this)
+            .header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+            .header("Pragma", "no-cache")
+            .header("Expires", "0")
+            .build();
       }
     } catch (Exception e) {
       error = ExceptionUtils.getStackTrace(e);
     }
-    return failed(this).output(error).build();
+    return failed(this)
+        .output(error)
+        .header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+        .header("Pragma", "no-cache")
+        .header("Expires", "0")
+        .build();
   }
 
   private boolean checkSolution(Comment comment) {
