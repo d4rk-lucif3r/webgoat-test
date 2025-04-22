@@ -18,7 +18,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.http.CacheControl;
 
 /** Security configuration for WebGoat. */
 @Configuration
@@ -61,7 +60,7 @@ public class WebSecurityConfig {
         .logout(logout -> logout.deleteCookies("JSESSIONID").invalidateHttpSession(true))
         .csrf(csrf -> csrf.disable())
         .headers(headers -> 
-            headers.cacheControl(cache -> cache.disable())
+            headers.cacheControl()
                    .contentTypeOptions()
                    .and()
                    .xssProtection()
