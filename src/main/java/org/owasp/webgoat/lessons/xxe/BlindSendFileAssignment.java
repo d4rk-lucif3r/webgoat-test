@@ -23,6 +23,8 @@ import org.owasp.webgoat.container.assignments.AttackResult;
 import org.owasp.webgoat.container.lessons.Initializable;
 import org.owasp.webgoat.container.users.WebGoatUser;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -66,13 +68,20 @@ public class BlindSendFileAssignment implements AssignmentEndpoint, Initializabl
 
   @PostMapping(path = "xxe/blind", consumes = ALL_VALUE, produces = APPLICATION_JSON_VALUE)
   @ResponseBody
-  public AttackResult addComment(
+  public ResponseEntity<AttackResult> addComment(
       @RequestBody String commentStr, @AuthenticationPrincipal WebGoatUser user) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    headers.add("Pragma", "no-cache");
+    headers.add("Expires", "0");
+    
     var fileContentsForUser = userToFileContents.getOrDefault(user, "");
 
     // Solution is posted by the user as a separate comment
     if (commentStr.contains(fileContentsForUser)) {
-      return success(this).build();
+      return ResponseEntity.ok()
+              .headers(headers)
+              .body(success(this).build());
     }
 
     try {
@@ -82,9 +91,13 @@ public class BlindSendFileAssignment implements AssignmentEndpoint, Initializabl
       }
       comments.addComment(comment, user, false);
     } catch (Exception e) {
-      return failed(this).output(e.toString()).build();
+      return ResponseEntity.ok()
+              .headers(headers)
+              .body(failed(this).output(e.toString()).build());
     }
-    return failed(this).build();
+    return ResponseEntity.ok()
+            .headers(headers)
+            .body(failed(this).build());
   }
 
   @Override

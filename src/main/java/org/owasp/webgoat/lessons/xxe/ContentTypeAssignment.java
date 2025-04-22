@@ -20,7 +20,9 @@ import org.owasp.webgoat.container.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.container.assignments.AssignmentHints;
 import org.owasp.webgoat.container.assignments.AttackResult;
 import org.owasp.webgoat.container.users.WebGoatUser;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -44,10 +46,15 @@ public class ContentTypeAssignment implements AssignmentEndpoint {
 
   @PostMapping(path = "xxe/content-type")
   @ResponseBody
-  public AttackResult createNewUser(
+  public ResponseEntity<AttackResult> createNewUser(
       @RequestBody String commentStr,
       @RequestHeader("Content-Type") String contentType,
       @CurrentUser WebGoatUser user) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    headers.add("Pragma", "no-cache");
+    headers.add("Expires", "0");
+    
     AttackResult attackResult = failed(this).build();
 
     if (APPLICATION_JSON_VALUE.equals(contentType)) {
@@ -68,7 +75,9 @@ public class ContentTypeAssignment implements AssignmentEndpoint {
       }
     }
 
-    return attackResult;
+    return ResponseEntity.ok()
+            .headers(headers)
+            .body(attackResult);
   }
 
   protected Optional<Comment> parseJson(String comment) {

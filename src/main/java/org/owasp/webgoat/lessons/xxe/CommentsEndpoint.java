@@ -8,7 +8,9 @@ import java.util.Collection;
 import lombok.AllArgsConstructor;
 import org.owasp.webgoat.container.CurrentUser;
 import org.owasp.webgoat.container.users.WebGoatUser;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,7 +29,14 @@ public class CommentsEndpoint {
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  public Collection<Comment> retrieveComments(@CurrentUser WebGoatUser user) {
-    return comments.getComments(user);
+  public ResponseEntity<Collection<Comment>> retrieveComments(@CurrentUser WebGoatUser user) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    headers.add("Pragma", "no-cache");
+    headers.add("Expires", "0");
+    
+    return ResponseEntity.ok()
+            .headers(headers)
+            .body(comments.getComments(user));
   }
 }
