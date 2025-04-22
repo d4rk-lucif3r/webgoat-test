@@ -4,6 +4,9 @@
  */
 package org.owasp.webgoat.container.assignments;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class AttackResultBuilder {
 
   private boolean assignmentCompleted;
@@ -13,6 +16,7 @@ public class AttackResultBuilder {
   private Object[] outputArgs;
   private AssignmentEndpoint assignment;
   private boolean attemptWasMade = false;
+  private Map<String, String> headers = new HashMap<>();
 
   public AttackResultBuilder assignmentCompleted(boolean lessonCompleted) {
     this.assignmentCompleted = lessonCompleted;
@@ -36,6 +40,11 @@ public class AttackResultBuilder {
 
   public AttackResultBuilder outputArgs(Object... args) {
     this.outputArgs = args;
+    return this;
+  }
+  
+  public AttackResultBuilder header(String name, String value) {
+    this.headers.put(name, value);
     return this;
   }
 

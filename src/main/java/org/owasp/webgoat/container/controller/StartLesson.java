@@ -27,6 +27,11 @@ public class StartLesson {
     var path = request.getRequestURL().toString(); // we now got /a/b/c/AccessControlMatrix.lesson
     var lessonName = path.substring(path.lastIndexOf('/') + 1, path.indexOf(".lesson"));
 
+    // Set cache control headers for all lesson pages
+    request.setAttribute("cacheControl", "no-store, no-cache, must-revalidate, max-age=0");
+    request.setAttribute("pragma", "no-cache");
+    request.setAttribute("expires", "0");
+
     course.getLessons().stream()
         .filter(l -> l.getId().equals(lessonName))
         .findFirst()
