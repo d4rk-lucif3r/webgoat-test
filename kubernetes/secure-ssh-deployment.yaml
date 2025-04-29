@@ -1,0 +1,64 @@
+# Deployment to update SSH server with security patches for CVE-2024-6387
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secure-ssh-server
+  namespace: webgoat
+  labels:
+    app: secure-ssh-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secure-ssh-server
+  template:
+    metadata:
+      labels:
+        app: secure-ssh-server
+    spec:
+      containers:
+      - name: openssh-server
+        image: ubuntu:noble
+        ports:
+        - containerPort: 22
+        volumeMounts:
+        - name: ssh-config
+          mountPath: /etc/ssh/sshd_config.d/security.conf
+          subPath: sshd_config
+        command:
+        - /bin/bash
+        - -c
+        - |
+          apt-get update && apt-get install -y openssh-server=1:9.3p1-1ubuntu5.2 && 
+          service ssh start && 
+          echo 'OpenSSH patched for CVE-2024-6387 vulnerability' && 
+          tail -f /dev/null
+        resources:
+          limits:
+            cpu: '500m'
+            memory: '512Mi'
+          requests:
+            cpu: '200m'
+            memory: '256Mi'
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+      volumes:
+      - name: ssh-config
+        configMap:
+          name: openssh-security-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: secure-ssh-service
+  namespace: webgoat
+spec:
+  selector:
+    app: secure-ssh-server
+  ports:
+  - port: 22
+    targetPort: 22
+  type: ClusterIP
