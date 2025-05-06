@@ -76,7 +76,21 @@ public class ProfileZipSlip extends ProfileUploadBase {
       Enumeration<? extends ZipEntry> entries = zip.entries();
       while (entries.hasMoreElements()) {
         ZipEntry e = entries.nextElement();
-        File f = new File(tmpZipDirectory.toFile(), e.getName());
+        // Fix for ZipSlip vulnerability: Validate the entry path is safe
+        String entryName = e.getName();
+        File f = new File(tmpZipDirectory.toFile(), entryName);
+        
+        // Prevent path traversal by checking if the normalized path is within the target directory
+        String canonicalDirPath = tmpZipDirectory.toFile().getCanonicalPath();
+        String canonicalEntryPath = f.getCanonicalPath();
+        
+        if (!canonicalEntryPath.startsWith(canonicalDirPath + File.separator)) {
+          // Skip this entry as it's trying to write outside the target directory
+          log.warn("Potentially malicious ZIP entry detected: {}", entryName);
+          continue;
+        }
+        
+        // Safe to extract the file
         InputStream is = zip.getInputStream(e);
         Files.copy(is, f.toPath(), StandardCopyOption.REPLACE_EXISTING);
       }
