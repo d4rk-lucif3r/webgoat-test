@@ -18,6 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.InvalidPathException;
+import java.io.File;
 
 @RestController
 @AssignmentHints({
@@ -31,6 +35,37 @@ public class ProfileUploadFix extends ProfileUploadBase {
     super(webGoatHomeDirectory);
   }
 
+  /**
+   * Sanitizes file name to prevent path traversal attacks
+   * - Removes any directory traversal sequences (../, ..\, etc.)
+   * - Extracts just the filename without any path components
+   * - Validates that the resulting path is safe
+   */
+  private String sanitizeFileName(String input) {
+    if (input == null) {
+      return "";
+    }
+    
+    // Get only the filename without any path
+    String fileName = new File(input).getName();
+    
+    // Remove any potential directory traversal sequences just to be safe
+    fileName = fileName.replaceAll("\\.\\./|\\.\\\\", "");
+    fileName = fileName.replaceAll("\\.\\.\\\\|\\.\\.\\\\", "");
+    
+    // Additional security check - verify the resulting path doesn't contain traversal attempts
+    try {
+      Path normalizedPath = Paths.get(fileName).normalize();
+      if (!normalizedPath.toString().equals(fileName)) {
+        return ""; // Path still contains traversal attempts after normalization
+      }
+    } catch (InvalidPathException e) {
+      return ""; // Invalid path, return empty string
+    }
+    
+    return fileName;
+  }
+
   @PostMapping(
       value = "/PathTraversal/profile-upload-fix",
       consumes = ALL_VALUE,
@@ -40,7 +75,9 @@ public class ProfileUploadFix extends ProfileUploadBase {
       @RequestParam("uploadedFileFix") MultipartFile file,
       @RequestParam(value = "fullNameFix", required = false) String fullName,
       @CurrentUsername String username) {
-    return super.execute(file, fullName != null ? fullName.replace("../", "") : "", username);
+    // Apply thorough filename sanitization to prevent path traversal vulnerabilities
+    String sanitizedName = sanitizeFileName(fullName);
+    return super.execute(file, sanitizedName, username);
   }
 
   @GetMapping("/PathTraversal/profile-picture-fix")
