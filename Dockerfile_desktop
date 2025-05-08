@@ -11,7 +11,8 @@ COPY config/desktop/WebGoat.txt /config/Desktop/
 
 RUN \
  apt-get update &&  \
- apt-get --yes install vim nano gzip
+ apt-get --yes install vim nano gzip && \
+ rm -rf /var/lib/apt/lists/*
 
 RUN \
  case $(uname -m) in \
