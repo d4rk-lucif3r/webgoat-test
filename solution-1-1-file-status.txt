@@ -1,0 +1,3 @@
+- src/main/java/org/owasp/webgoat/container/MvcConfiguration.java
+- src/main/java/org/owasp/webgoat/container/WebSecurityConfig.java
+- src/main/java/org/owasp/webgoat/webwolf/MvcConfiguration.java

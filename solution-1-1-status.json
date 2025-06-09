@@ -1,0 +1,8 @@
+{
+  "Step 1": "Analyzing repository structure",
+  "Step 2": "Identifying files to fix",
+  "Step 3": "Applying security fixes",
+  "Step 4": "Implementing cache control headers in WebGoat",
+  "Step 5": "Implementing cache control headers in WebWolf",
+  "Step Last": "Finished"
+}

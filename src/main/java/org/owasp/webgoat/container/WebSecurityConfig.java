@@ -67,6 +67,8 @@ public class WebSecurityConfig {
                    .xssProtection()
                    .and()
                    .httpStrictTransportSecurity()
+                   .and()
+                   .cacheControl()
         )
         .exceptionHandling(
             handling ->
