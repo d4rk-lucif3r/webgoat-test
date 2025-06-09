@@ -7,6 +7,8 @@ package org.owasp.webgoat.webwolf;
 import jakarta.annotation.PostConstruct;
 import java.io.File;
 import org.owasp.webgoat.container.UserInterceptor;
+import org.owasp.webgoat.container.interceptor.CacheControlInterceptor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -26,13 +28,20 @@ public class MvcConfiguration implements WebMvcConfigurer {
 
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
-    registry.addResourceHandler("/files/**").addResourceLocations("file:///" + fileLocation + "/");
+    registry.addResourceHandler("/files/**")
+        .addResourceLocations("file:///" + fileLocation + "/")
+        .setCachePeriod(0);
 
-    registry.addResourceHandler("/css/**").addResourceLocations("classpath:/webwolf/static/css/");
-    registry.addResourceHandler("/js/**").addResourceLocations("classpath:/webwolf/static/js/");
+    registry.addResourceHandler("/css/**")
+        .addResourceLocations("classpath:/webwolf/static/css/")
+        .setCachePeriod(0);
+    registry.addResourceHandler("/js/**")
+        .addResourceLocations("classpath:/webwolf/static/js/")
+        .setCachePeriod(0);
     registry
         .addResourceHandler("/images/**")
-        .addResourceLocations("classpath:/webwolf/static/images/");
+        .addResourceLocations("classpath:/webwolf/static/images/")
+        .setCachePeriod(0);
   }
 
   @Override
@@ -45,6 +54,12 @@ public class MvcConfiguration implements WebMvcConfigurer {
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(new UserInterceptor());
+    registry.addInterceptor(cacheControlInterceptor());
+  }
+  
+  @Bean
+  public CacheControlInterceptor cacheControlInterceptor() {
+    return new CacheControlInterceptor();
   }
 
   @PostConstruct

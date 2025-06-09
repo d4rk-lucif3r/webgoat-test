@@ -59,7 +59,9 @@ public class WebSecurityConfig {
             })
         .logout(logout -> logout.deleteCookies("JSESSIONID").invalidateHttpSession(true))
         .csrf(csrf -> csrf.disable())
-        .headers(headers -> headers.disable())
+        .headers(headers -> headers
+            .disable()
+            .cacheControl(cache -> cache.disable()))
         .exceptionHandling(
             handling ->
                 handling.authenticationEntryPoint(new AjaxAuthenticationEntryPoint("/login")))

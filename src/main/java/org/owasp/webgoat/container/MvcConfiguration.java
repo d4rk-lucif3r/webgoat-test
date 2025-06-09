@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.owasp.webgoat.container.i18n.Language;
 import org.owasp.webgoat.container.i18n.Messages;
 import org.owasp.webgoat.container.i18n.PluginMessages;
+import org.owasp.webgoat.container.interceptor.CacheControlInterceptor;
 import org.owasp.webgoat.container.session.LabelDebugger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -150,36 +151,47 @@ public class MvcConfiguration implements WebMvcConfigurer {
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
     // WebGoat internal
-    registry.addResourceHandler("/css/**").addResourceLocations("classpath:/webgoat/static/css/");
-    registry.addResourceHandler("/js/**").addResourceLocations("classpath:/webgoat/static/js/");
+    registry.addResourceHandler("/css/**")
+        .addResourceLocations("classpath:/webgoat/static/css/")
+        .setCachePeriod(0);
+    registry.addResourceHandler("/js/**")
+        .addResourceLocations("classpath:/webgoat/static/js/")
+        .setCachePeriod(0);
     registry
         .addResourceHandler("/plugins/**")
-        .addResourceLocations("classpath:/webgoat/static/plugins/");
+        .addResourceLocations("classpath:/webgoat/static/plugins/")
+        .setCachePeriod(0);
     registry
         .addResourceHandler("/fonts/**")
-        .addResourceLocations("classpath:/webgoat/static/fonts/");
+        .addResourceLocations("classpath:/webgoat/static/fonts/")
+        .setCachePeriod(0);
 
     // WebGoat lessons
     registry
         .addResourceHandler("/images/**")
         .addResourceLocations(
-            lessonScanner.applyPattern("classpath:/lessons/%s/images/").toArray(String[]::new));
+            lessonScanner.applyPattern("classpath:/lessons/%s/images/").toArray(String[]::new))
+        .setCachePeriod(0);
     registry
         .addResourceHandler("/lesson_js/**")
         .addResourceLocations(
-            lessonScanner.applyPattern("classpath:/lessons/%s/js/").toArray(String[]::new));
+            lessonScanner.applyPattern("classpath:/lessons/%s/js/").toArray(String[]::new))
+        .setCachePeriod(0);
     registry
         .addResourceHandler("/lesson_css/**")
         .addResourceLocations(
-            lessonScanner.applyPattern("classpath:/lessons/%s/css/").toArray(String[]::new));
+            lessonScanner.applyPattern("classpath:/lessons/%s/css/").toArray(String[]::new))
+        .setCachePeriod(0);
     registry
         .addResourceHandler("/lesson_templates/**")
         .addResourceLocations(
-            lessonScanner.applyPattern("classpath:/lessons/%s/templates/").toArray(String[]::new));
+            lessonScanner.applyPattern("classpath:/lessons/%s/templates/").toArray(String[]::new))
+        .setCachePeriod(0);
     registry
         .addResourceHandler("/video/**")
         .addResourceLocations(
-            lessonScanner.applyPattern("classpath:/lessons/%s/video/").toArray(String[]::new));
+            lessonScanner.applyPattern("classpath:/lessons/%s/video/").toArray(String[]::new))
+        .setCachePeriod(0);
   }
 
   @Bean
@@ -214,6 +226,12 @@ public class MvcConfiguration implements WebMvcConfigurer {
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(localeChangeInterceptor());
     registry.addInterceptor(new UserInterceptor());
+    registry.addInterceptor(cacheControlInterceptor());
+  }
+  
+  @Bean
+  public CacheControlInterceptor cacheControlInterceptor() {
+    return new CacheControlInterceptor();
   }
 
   @Bean
