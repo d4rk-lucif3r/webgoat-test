@@ -48,11 +48,20 @@ public class ContentTypeAssignment implements AssignmentEndpoint {
       @RequestBody String commentStr,
       @RequestHeader("Content-Type") String contentType,
       @CurrentUser WebGoatUser user) {
-    AttackResult attackResult = failed(this).build();
+    AttackResult attackResult = failed(this)
+            .header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+            .header("Pragma", "no-cache")
+            .header("Expires", "0")
+            .build();
 
     if (APPLICATION_JSON_VALUE.equals(contentType)) {
       parseJson(commentStr).ifPresent(c -> comments.addComment(c, user, true));
-      attackResult = failed(this).feedback("xxe.content.type.feedback.json").build();
+      attackResult = failed(this)
+              .header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+              .header("Pragma", "no-cache")
+              .header("Expires", "0")
+              .feedback("xxe.content.type.feedback.json")
+              .build();
     }
 
     if (null != contentType && contentType.contains(MediaType.APPLICATION_XML_VALUE)) {
@@ -60,11 +69,21 @@ public class ContentTypeAssignment implements AssignmentEndpoint {
         Comment comment = comments.parseXml(commentStr, false);
         comments.addComment(comment, user, false);
         if (checkSolution(comment)) {
-          attackResult = success(this).build();
+          attackResult = success(this)
+                  .header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+                  .header("Pragma", "no-cache")
+                  .header("Expires", "0")
+                  .build();
         }
       } catch (Exception e) {
         String error = ExceptionUtils.getStackTrace(e);
-        attackResult = failed(this).feedback("xxe.content.type.feedback.xml").output(error).build();
+        attackResult = failed(this)
+                .header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .feedback("xxe.content.type.feedback.xml")
+                .output(error)
+                .build();
       }
     }
 

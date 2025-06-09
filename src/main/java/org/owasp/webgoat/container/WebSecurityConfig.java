@@ -61,7 +61,7 @@ public class WebSecurityConfig {
         .logout(logout -> logout.deleteCookies("JSESSIONID").invalidateHttpSession(true))
         .csrf(csrf -> csrf.disable())
         .headers(headers -> 
-            headers.cacheControl(cache -> cache.disable())
+            headers.cacheControl(cache -> cache.and().cacheControl(CacheControl.noStore().mustRevalidate()))
                    .contentTypeOptions()
                    .and()
                    .xssProtection()

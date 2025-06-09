@@ -72,7 +72,11 @@ public class BlindSendFileAssignment implements AssignmentEndpoint, Initializabl
 
     // Solution is posted by the user as a separate comment
     if (commentStr.contains(fileContentsForUser)) {
-      return success(this).build();
+      return success(this)
+              .header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+              .header("Pragma", "no-cache")
+              .header("Expires", "0")
+              .build();
     }
 
     try {
@@ -82,9 +86,18 @@ public class BlindSendFileAssignment implements AssignmentEndpoint, Initializabl
       }
       comments.addComment(comment, user, false);
     } catch (Exception e) {
-      return failed(this).output(e.toString()).build();
+      return failed(this)
+              .header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+              .header("Pragma", "no-cache")
+              .header("Expires", "0")
+              .output(e.toString())
+              .build();
     }
-    return failed(this).build();
+    return failed(this)
+            .header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+            .header("Pragma", "no-cache")
+            .header("Expires", "0")
+            .build();
   }
 
   @Override
