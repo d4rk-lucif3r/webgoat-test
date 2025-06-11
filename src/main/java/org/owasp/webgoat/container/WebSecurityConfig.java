@@ -61,7 +61,13 @@ public class WebSecurityConfig {
         .logout(logout -> logout.deleteCookies("JSESSIONID").invalidateHttpSession(true))
         .csrf(csrf -> csrf.disable())
         .headers(headers -> 
-            headers.cacheControl(cache -> cache.disable())
+            headers.cacheControl(cache -> 
+                   cache.disable())
+                   .addHeaderWriter((request, response) -> {
+                       response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+                       response.setHeader("Pragma", "no-cache");
+                       response.setHeader("Expires", "0");
+                   })
                    .contentTypeOptions()
                    .and()
                    .xssProtection()
